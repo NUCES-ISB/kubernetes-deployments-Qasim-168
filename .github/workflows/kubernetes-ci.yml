@@ -1,0 +1,86 @@
+name: CI Pipeline - Kubernetes
+
+on:
+  push:
+    branches:
+      - kubernetes
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          make install
+
+      - name: Lint code
+        run: |
+          make lint
+
+      - name: Run tests
+        run: |
+          make test
+
+      - name: Build Docker Image
+        run: |
+          make docker-build
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Validate Kubernetes manifests
+        run: |
+          kubectl --dry-run=client -f manifests/configmap/postgres-configmap.yaml
+          kubectl --dry-run=client -f manifests/secret/postgres-secret.yaml
+          kubectl --dry-run=client -f manifests/deployment/postgres-deployment.yaml
+          kubectl --dry-run=client -f manifests/service/postgres-service.yaml
+          kubectl --dry-run=client -f manifests/deployment/flask-deployment.yaml
+          kubectl --dry-run=client -f manifests/service/flask-service.yaml
+
+      # Optional: Setup kind cluster for more comprehensive testing
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1.5.0
+        if: github.event_name == 'pull_request'
+
+      - name: Test deployment in Kind (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          # Load Docker image into Kind
+          kind load docker-image flask-app:latest
+
+          # Apply manifests
+          kubectl apply -f manifests/configmap/postgres-configmap.yaml
+          kubectl apply -f manifests/secret/postgres-secret.yaml
+          kubectl apply -f manifests/deployment/postgres-deployment.yaml
+          kubectl apply -f manifests/service/postgres-service.yaml
+          kubectl apply -f manifests/deployment/flask-deployment.yaml
+          kubectl apply -f manifests/service/flask-service.yaml
+
+          # Wait for deployments
+          kubectl wait --for=condition=available --timeout=300s deployment/postgres
+          kubectl wait --for=condition=available --timeout=300s deployment/flask-app
+
+          # Verify services
+          kubectl get services
+
+          # Clean up
+          kubectl delete -f manifests/service/flask-service.yaml
+          kubectl delete -f manifests/deployment/flask-deployment.yaml
+          kubectl delete -f manifests/service/postgres-service.yaml
+          kubectl delete -f manifests/deployment/postgres-deployment.yaml
+          kubectl delete -f manifests/secret/postgres-secret.yaml
+          kubectl delete -f manifests/configmap/postgres-configmap.yaml

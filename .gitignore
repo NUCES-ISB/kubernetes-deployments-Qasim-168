@@ -1,0 +1,44 @@
+# Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.swp
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyd
+*.pyo
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE settings
+.idea/
+.vscode/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# ---- Docker ----
+*.tar
+*.img
+
+# ---- Kubernetes ----
+kubeconfig
+*.kubeconfig
+.kube/
+
+# ---- OS Generated ----
+.DS_Store
+Thumbs.db
+
+# ---- Logs ----
+*.log
+
+# ---- Minikube ----
+.minikube/
+
