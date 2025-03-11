@@ -3,7 +3,7 @@ name: CI Pipeline - Kubernetes
 on:
   push:
     branches:
-      - kubernetes
+      - minikube
   pull_request:
     branches:
       - main
