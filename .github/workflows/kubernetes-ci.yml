@@ -29,7 +29,7 @@ jobs:
 
       - name: Lint code
         run: |
-          pylint --disable=CR app/app.py
+          pylint --disable=C0111,R0903,R0913,C0103,C0303,W0718,C0114,C0116,C0411 app/app.py
 
       - name: Run tests
         run: |

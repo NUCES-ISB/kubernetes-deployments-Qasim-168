@@ -1,5 +1,9 @@
-from flask import Flask, jsonify, request
+"""
+Flask application for Kubernetes demo with PostgreSQL integration.
+Provides endpoints for health checks, database testing, and message management.
+"""
 import os
+from flask import Flask, jsonify, request
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
@@ -26,6 +30,7 @@ def get_db_connection():
 
 @app.route('/')
 def index():
+    """Main endpoint that returns a welcome message"""
     return jsonify({
         "message": "Welcome to Flask Kubernetes Demo",
         "status": "active"
@@ -44,7 +49,7 @@ def db_test():
     try:
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
-        
+
         # Try to create a table if it doesn't exist
         cur.execute("""
             CREATE TABLE IF NOT EXISTS messages (
@@ -53,14 +58,14 @@ def db_test():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
+
         # Get count of records
         cur.execute("SELECT COUNT(*) as count FROM messages")
         count = cur.fetchone()['count']
-        
+
         cur.close()
         conn.close()
-        
+
         return jsonify({
             "status": "success",
             "database_connection": "successful",
@@ -83,7 +88,7 @@ def get_messages():
         messages = cur.fetchall()
         cur.close()
         conn.close()
-        
+
         return jsonify({
             "status": "success",
             "count": len(messages),
@@ -105,7 +110,7 @@ def create_message():
                 "status": "error",
                 "error": "Message field is required"
             }), 400
-            
+
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
         cur.execute(
@@ -115,7 +120,7 @@ def create_message():
         new_message = cur.fetchone()
         cur.close()
         conn.close()
-        
+
         return jsonify({
             "status": "success",
             "message": "Message created successfully",
