@@ -13,7 +13,7 @@ lint:
 # 3. Run tests
 test:
 	@echo "Running tests..."
-	pytest
+	python -m pytest test.py -v
 
 # 4. Run the Flask app locally (Flask runs on port 5000)
 run:
