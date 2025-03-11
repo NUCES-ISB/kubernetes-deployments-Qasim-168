@@ -33,7 +33,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest
+          python -m pytest test.py -v
 
   validate-kubernetes:
     runs-on: ubuntu-latest
