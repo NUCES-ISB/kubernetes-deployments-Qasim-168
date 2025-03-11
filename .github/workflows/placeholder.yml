@@ -1,0 +1,15 @@
+name: Placeholder Workflow
+
+# This workflow file is intentionally disabled
+# No triggers are defined to prevent CI/CD execution
+
+on:
+  # No triggers defined
+  workflow_dispatch: # Only manual trigger is allowed
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder step
+        run: echo "This is a placeholder file to maintain directory structure"
